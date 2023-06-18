@@ -1,9 +1,9 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { fetcher } from '../lib/api'
-import { setToken, unsetToken } from '../lib/auth'
-import { useUser } from '../lib/authContext'
+// import { fetcher } from '../lib/api'
+// import { setToken, unsetToken } from '../lib/auth'
+// import { useUser } from '../lib/authContext'
 
 const Nav = () => {
   const [data, setData] = useState({
@@ -11,34 +11,34 @@ const Nav = () => {
     password: '',
   })
 
-  const { user, loading } = useUser()
+  // const { user, loading } = useUser()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault()
 
-    const responseData = await fetcher(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/auth/local`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          identifier: data.identifier,
-          password: data.password,
-        }),
-      }
-    )
-    setToken(responseData)
-  }
+  //   const responseData = await fetcher(
+  //     `${process.env.NEXT_PUBLIC_STRAPI_URL}/auth/local`,
+  //     {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         identifier: data.identifier,
+  //         password: data.password,
+  //       }),
+  //     }
+  //   )
+  //   setToken(responseData)
+  // }
 
-  const logout = () => {
-    unsetToken()
-  }
+  // const logout = () => {
+  //   unsetToken()
+  // }
 
-  const handleChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value })
-  }
+  // const handleChange = (e) => {
+  //   setData({ ...data, [e.target.name]: e.target.value })
+  // }
   return (
     <nav
       className="
@@ -55,16 +55,16 @@ const Nav = () => {
     >
       <div>
         <Link href="/" passHref>
-          <a>
-            {/* eslint-disable @next/next/no-img-element */}
-            <img
-              className="m-3"
-              src="/strapi-logo.png"
-              width={200}
-              height={50}
-              alt="Strapi Logo"
-            />
-          </a>
+
+          {/* eslint-disable @next/next/no-img-element */}
+          <img
+            className="m-3"
+            src="/strapi-logo.png"
+            width={200}
+            height={50}
+            alt="Strapi Logo"
+          />
+
         </Link>
       </div>
       <svg
@@ -97,82 +97,17 @@ const Nav = () => {
         >
           <li>
             <Link href="/">
-              <a className="md:p-2 py-2 block hover:text-purple-400">Home</a>
+              <span className="md:p-2 py-2 block hover:text-purple-400">Home</span>
             </Link>
           </li>
           <li>
             <Link href="/films">
-              <a className="md:p-2 py-2 block hover:text-purple-400" href="#">
+              <span className="md:p-2 py-2 block hover:text-purple-400" href="#">
                 Films
-              </a>
+              </span>
             </Link>
           </li>
-          {!loading &&
-            (user ? (
-              <li>
-                <Link href="/profile">
-                  <a className="md:p-2 py-2 block hover:text-purple-400">
-                    Profile
-                  </a>
-                </Link>
-              </li>
-            ) : (
-              ''
-            ))}
-          {!loading &&
-            (user ? (
-              <li>
-                <a
-                  className="md:p-2 py-2 block hover:text-purple-400"
-                  onClick={logout}
-                  style={{ cursor: 'pointer' }}
-                >
-                  Logout
-                </a>
-              </li>
-            ) : (
-              ''
-            ))}
-          {!loading && !user ? (
-            <>
-              <li>
-                <form onSubmit={handleSubmit} className="form-inline">
-                  <input
-                    type="text"
-                    name="identifier"
-                    onChange={handleChange}
-                    placeholder="Username"
-                    className="md:p-2 form-input py-2 rounded mx-2"
-                    required
-                  />
-                  <input
-                    type="password"
-                    name="password"
-                    onChange={handleChange}
-                    placeholder="Password"
-                    className="md:p-2 form-input py-2 rounded mx-2"
-                    required
-                  />
 
-                  <button
-                    className="md:p-2 rounded py-2 text-black bg-purple-200 p-2"
-                    type="submit"
-                  >
-                    Login
-                  </button>
-                </form>
-              </li>
-              <li>
-                <Link href="/register">
-                  <a className="md:p-2 block py-2 hover:text-purple-400 text-black">
-                    Register
-                  </a>
-                </Link>
-              </li>
-            </>
-          ) : (
-            ''
-          )}
         </ul>
       </div>
     </nav>
