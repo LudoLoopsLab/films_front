@@ -1,16 +1,19 @@
 import Layout from "@/components/Layout"
 import Films from "@/components/Films"
 import React from 'react'
-import { fetcher } from "../../lib/api"
+import { fetcher } from "../lib/api"
+import { useFetchUser } from '../lib/authContext'
 import { useState } from "react"
+
 import useSWR from 'swr'
 
 const FilmsList = ({ films }) => {
+  const { user, loading } = useFetchUser()
   const [pageIndex, setPageIndex] = useState(1)
   const { data } = useSWR(`${process.env.NEXT_PUBLIC_STRAPI_URL}/films?pagination[page]=${pageIndex}&pagination[pageSize]=2`, fetcher, { fallback: films })
 
   return (
-    <Layout>
+    <Layout user={user}>
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tighter mb-4 w-full justify-start">
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-neutral-400">
           Films

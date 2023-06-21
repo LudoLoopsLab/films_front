@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout"
-import { useFetchUser } from "../../lib/authContext"
+import { useFetchUser } from "../lib/authContext"
 
 export default function Home() {
   const { user, loading } = useFetchUser()

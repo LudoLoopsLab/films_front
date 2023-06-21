@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { getUserFromLocalCookie } from '../lib/auth'
+import { getUserFromLocalCookie } from './auth'
 
 let userState
 
