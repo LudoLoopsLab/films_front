@@ -3,10 +3,11 @@ import { useState } from 'react'
 import { fetcher } from "../../lib/api"
 // import { useUser } from '../../lib/authContext'
 import { useFetchUser } from '../../lib/authContext'
-import { getTokenFromLocalCookie, getTokenFromServerCookie } from "../../lib/auth"
+import { getTokenFromLocalCookie, getTokenFromServerCookie, getUserFromLocalCookie } from "../../lib/auth"
 import { useRouter } from "next/router"
+import markdownToHtml from "./markdownToHtml"
 
-const Film = ({ film, jwt }) => {
+const Film = ({ film, jwt, plot }) => {
   const { user, loading } = useFetchUser()
   const router = useRouter()
   const [review, setReview] = useState({
@@ -19,7 +20,8 @@ const Film = ({ film, jwt }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const jwt = getTokenFromLocalCookie()
+
+
     try {
       await fetcher(`${process.env.NEXT_PUBLIC_STRAPI_URL}/reviews`, {
         method: 'POST',
@@ -30,8 +32,8 @@ const Film = ({ film, jwt }) => {
         body: JSON.stringify({
           data: {
             review: review.value,
-            reviewer: '',
-            Film: film.id,
+            reviewer: await getUserFromLocalCookie(),
+            film: film.id,
           },
         }),
       })
@@ -63,7 +65,7 @@ const Film = ({ film, jwt }) => {
       </h2>
       <div
         className="tracking-wide font-normal text-sm"
-        dangerouslySetInnerHTML={{ __html: film.attributes.plot }}
+        dangerouslySetInnerHTML={{ __html: plot }}
       ></div>
       {user && (
         <>
@@ -88,7 +90,7 @@ const Film = ({ film, jwt }) => {
             </form>
           </h2>
           <ul>
-            {film.attributes.reviews?.length === 0 && (
+            {film.attributes.reviews.data?.length === 0 && (
               <span>No reviews yet</span>
             )}
             {film.attributes.reviews &&
@@ -127,10 +129,14 @@ export async function getServerSideProps({ req, params }) {
   const filmsResponse = await fetcher(
     `${process.env.NEXT_PUBLIC_STRAPI_URL}/films?filters[slug][$eq]=${slug}&populate=*`, options
   )
-  console.log('129 filmsResponse', filmsResponse.data[0].attributes.reviews.data)
+
+  const plot = await markdownToHtml(filmsResponse.data[0].attributes.plot)
+
   return {
     props: {
-      film: filmsResponse.data[0]
+      film: filmsResponse.data[0],
+      plot,
+      jwt: jwt ? jwt : ''
     }
   }
 
