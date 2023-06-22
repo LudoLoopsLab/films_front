@@ -7,7 +7,7 @@ import { getTokenFromLocalCookie, getTokenFromServerCookie, getUserFromLocalCook
 import { useRouter } from "next/router"
 import markdownToHtml from "./markdownToHtml"
 
-const Film = ({ film, jwt, plot }) => {
+const Film = ({ film, jwt, plot, error }) => {
   const { user, loading } = useFetchUser()
   const router = useRouter()
   const [review, setReview] = useState({
@@ -43,72 +43,79 @@ const Film = ({ film, jwt, plot }) => {
       console.error('error with request', error)
     }
   }
+  if (error) {
+    return (
+      <Layout>
+        <p>{error}</p>
+      </Layout>
+    )
+  } else {
+    return (
+      <Layout user={user}>
 
-  return (
-    <Layout user={user}>
-
-      <h1 className="text-5xl md:text-6xl font-extrabold leading-tighter mb-4">
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400 py-2">
-          {film.attributes.title}
-        </span>
-      </h1>
-      <p>
-        Directed by{' '}
-        <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
-          {film.attributes.director}
-        </span>
-      </p>
-      <h2 className="text-3xl md:text-4xl font-extrabold leading-tighter mb-4 mt-4">
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400 py-2">
-          Plot
-        </span>
-      </h2>
-      <div
-        className="tracking-wide font-normal text-sm"
-        dangerouslySetInnerHTML={{ __html: plot }}
-      ></div>
-      {user && (
-        <>
-          <h2 className="text-3xl md:text-4xl font-extrabold leading-tighter mb-4 mt-4">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400 py-2">
-              Reviews
-            </span>
-            <form onSubmit={handleSubmit}>
-              <textarea
-                className="w-full text-sm px-3 py-2 text-gray-700 border border-2 border-teal-400 rounded-lg focus:outline-none"
-                rows="4"
-                value={review.value}
-                onChange={handleChange}
-                placeholder="Add your review"
-              ></textarea>
-              <button
-                className="md:p-2 rounded py-2 text-black bg-purple-200 p-2"
-                type="submit"
-              >
-                Add Review
-              </button>
-            </form>
-          </h2>
-          <ul>
-            {film.attributes.reviews.data?.length === 0 && (
-              <span>No reviews yet</span>
-            )}
-            {film.attributes.reviews &&
-              film.attributes.reviews.data.map((data) => {
-                const { review, reviewer } = data.attributes
-                return (
-                  <li key={data.id}>
-                    <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
-                      {reviewer}
-                    </span>{' '}
-                    said &quot;{review}&quot;
-                  </li>
-                )
-              })}
-          </ul>
-        </>
-      )}
-    </Layout>)
+        <h1 className="text-5xl md:text-6xl font-extrabold leading-tighter mb-4">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400 py-2">
+            {film.attributes.title}
+          </span>
+        </h1>
+        <p>
+          Directed by{' '}
+          <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
+            {film.attributes.director}
+          </span>
+        </p>
+        <h2 className="text-3xl md:text-4xl font-extrabold leading-tighter mb-4 mt-4">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400 py-2">
+            Plot
+          </span>
+        </h2>
+        <div
+          className="tracking-wide font-normal text-sm"
+          dangerouslySetInnerHTML={{ __html: plot }}
+        ></div>
+        {user && (
+          <>
+            <h2 className="text-3xl md:text-4xl font-extrabold leading-tighter mb-4 mt-4">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400 py-2">
+                Reviews
+              </span>
+              <form onSubmit={handleSubmit}>
+                <textarea
+                  className="w-full text-sm px-3 py-2 text-gray-700 border border-2 border-teal-400 rounded-lg focus:outline-none"
+                  rows="4"
+                  value={review.value}
+                  onChange={handleChange}
+                  placeholder="Add your review"
+                ></textarea>
+                <button
+                  className="md:p-2 rounded py-2 text-black bg-purple-200 p-2"
+                  type="submit"
+                >
+                  Add Review
+                </button>
+              </form>
+            </h2>
+            <ul>
+              {film.attributes.reviews.data?.length === 0 && (
+                <span>No reviews yet</span>
+              )}
+              {film.attributes.reviews &&
+                film.attributes.reviews.data.map((data) => {
+                  const { review, reviewer } = data.attributes
+                  return (
+                    <li key={data.id}>
+                      <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
+                        {reviewer}
+                      </span>{' '}
+                      said &quot;{review}&quot;
+                    </li>
+                  )
+                })}
+            </ul>
+          </>
+        )}
+      </Layout>)
+  }
 }
 
 
@@ -130,14 +137,22 @@ export async function getServerSideProps({ req, params }) {
     `${process.env.NEXT_PUBLIC_STRAPI_URL}/films?filters[slug][$eq]=${slug}&populate=*`, options
   )
 
-  const plot = await markdownToHtml(filmsResponse.data[0].attributes.plot)
-
-  return {
-    props: {
-      film: filmsResponse.data[0],
-      plot,
-      jwt: jwt ? jwt : ''
+  if (filmsResponse.data) {
+    const plot = await markdownToHtml(filmsResponse.data[0].attributes.plot)
+    return {
+      props: {
+        film: filmsResponse.data[0],
+        plot,
+        jwt: jwt ? jwt : ''
+      }
     }
+  } else {
+    return {
+      props: {
+        error: filmsResponse.error.message
+      }
+    }
+
   }
 
 }

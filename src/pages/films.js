@@ -1,8 +1,8 @@
 import Layout from "@/components/Layout"
 import Films from "@/components/Films"
 import React from 'react'
-import { fetcher } from "../lib/api"
-import { useFetchUser } from '../lib/authContext'
+import { fetcher } from "@/lib/api"
+import { useFetchUser } from '@/lib/authContext'
 import { useState } from "react"
 
 import useSWR from 'swr'

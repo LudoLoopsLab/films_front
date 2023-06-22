@@ -1,9 +1,9 @@
 
+import { fetcher } from '@/lib/api'
+import { useUser } from '@/lib/authContext'
 import Link from 'next/link'
 import { useState } from 'react'
-import { fetcher } from '@/lib/api'
-import { setToken, unsetToken } from '../lib/auth'
-import { useUser } from '@/lib/authContext'
+import { setToken, unsetToken } from '@/lib/auth'
 
 const Nav = () => {
   const [data, setData] = useState({
